@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blockchain Property Manager</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <section class="main-wrapper">
+    <div class="form-wrapper">
+      <h1 class="title">Blockchain Property Manager</h1>
+
+      <form id="propertyAddForm" class="form-section">
+        <h2>Add New Property</h2>
+        <div class="input-group">
+          <label for="propertyName">Property Name</label>
+          <input type="text" id="propertyName" required>
+        </div>
+        <div class="input-group">
+          <label for="propertyType">Type of Property</label>
+          <select id="propertyType">
+            <option value="0">House</option>
+            <option value="1">Apartment</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="propertyPrice">Property Price</label>
+          <input type="number" id="propertyPrice" required>
+        </div>
+        <button type="submit">Add Property</button>
+      </form>
+
+      <form id="priceUpdateForm" class="form-section">
+        <h2>Update Property Price</h2>
+        <div class="input-group">
+          <label for="updatePropertyName">Property Name</label>
+          <input type="text" id="updatePropertyName" required>
+        </div>
+        <div class="input-group">
+          <label for="updatePropertyPrice">New Price</label>
+          <input type="number" id="updatePropertyPrice" required>
+        </div>
+        <button type="submit">Update Price</button>
+      </form>
+
+      <form id="propertyPurchaseForm" class="form-section">
+        <h2>Purchase Property</h2>
+        <div class="input-group">
+          <label for="purchasePropertyName">Property Name</label>
+          <input type="text" id="purchasePropertyName" required>
+        </div>
+        <div class="input-group">
+          <label for="purchaseAmount">Amount to Spend</label>
+          <input type="number" id="purchaseAmount" required>
+        </div>
+        <button type="submit">Purchase</button>
+      </form>
+
+      <form id="propertySaleForm" class="form-section">
+        <h2>Sell Property</h2>
+        <div class="input-group">
+          <label for="salePropertyName">Property Name</label>
+          <input type="text" id="salePropertyName" required>
+        </div>
+        <button type="submit">Sell Property</button>
+      </form>
+
+      <div id="output" class="result-display"></div>
+    </div>
+  </section>
+  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
