@@ -1,98 +1,77 @@
-# Library Control System 
+# Real Estate Management Smart Contract
 
-This Solidity smart contract, Library control system, is designed to manage the library on the Ethereum blockchain.
+Solidity smart contracts for real estate asset management, allowing the contract owner to register and edit property reviews, and allowing users to purchase available properties
 
 ## Description
 
-The Library Control System Solidity smart contract is a decentralized system built on the Ethereum blockchain to manage the problems that arises at library.
+The RealEstateManager smart contract is designed to easily list, manage and sell real estate assets on the Ethereum blockchain. The contract allows the contract owner to list the property as residential or commercial with an associated valuation. Users can purchase these assets by sending an appropriate amount of ether, after which the assets are removed from the register. The agreement also provides the owner with the function to update the value of any listed property and includes mechanisms to ensure that the owner is the only one capable of carrying out administrative costs. Smart contracts provide a transparent, secure, and immutable record of real estate transactions.
 
 ## Getting Started
 
 In this assessment, I have used remix IDE [https://remix.ethereum.org/]
 
 ### Executing program
-
+```
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.7;
+pragma solidity ^0.8.0;
 
-contract LibraryManagement {
+contract RealEstateManager {
+    enum EstateType { Residential, Commercial }
 
-    enum BookCategory { Fiction, NonFiction, Science, History }
-
-    struct Book {
-        address borrower;
-        BookCategory category;
-        string title;
-        string author;
-        uint publicationDate;
-        uint borrowDate;
-        uint dueDate;
-        bool isBorrowed;
+    struct Estate {
+        string identifier;
+        EstateType estateType;
+        uint256 valuation;
     }
 
-    mapping(uint => Book) public books;
-    uint public nextBookId = 1;
+    address public contractOwner;
+    mapping(string => Estate) public estateRegistry;
 
-    event BorrowAttempt(address borrower, uint borrowDate, uint dueDate);
+    event EstateRegistered(string identifier, uint256 valuation);
+    event EstateSold(string identifier, uint256 valuation);
+    event ValuationUpdated(string identifier, uint256 newValuation);
 
-    function borrowBook(
-        address _borrower,
-        BookCategory _category,
-        string memory _title,
-        string memory _author,
-        uint _publicationDate,
-        uint _borrowDate,
-        uint _dueDate
-    ) public {
-        emit BorrowAttempt(_borrower, _borrowDate, _dueDate);
-        require(_borrowDate < _dueDate, "Borrow date must be before due date");
-
-        books[nextBookId++] = Book(
-            _borrower, 
-            _category, 
-            _title, 
-            _author, 
-            _publicationDate, 
-            _borrowDate, 
-            _dueDate, 
-            true
-        );
+    modifier onlyOwner() {
+        require(msg.sender == contractOwner, "Action restricted to contract owner");
+        _;
     }
 
-    function returnBook(uint _bookId) public {
-        Book storage book = books[_bookId];
-        // Check if book exists and is borrowed
-        require(book.borrower != address(0), "Book does not exist");
-        require(book.isBorrowed, "Book is already returned");
-        require(book.borrower == msg.sender, "Unauthorized");
-
-        book.isBorrowed = false;
+    constructor() {
+        contractOwner = msg.sender;
     }
 
-    function viewBook(uint _bookId) public view returns (Book memory) {
-        Book memory book = books[_bookId];
-        // Check if book exists and is borrowed
-        require(book.borrower != address(0), "Book does not exist");
-        require(book.isBorrowed, "Book is not currently borrowed");
-        require(book.borrower == msg.sender || msg.sender == address(0), "Unauthorized"); // Example: Allow anyone to view borrowed books
-
-        return book;
+    function registerEstate(string memory identifier, EstateType estateType, uint256 valuation) public onlyOwner {
+        estateRegistry[identifier] = Estate(identifier, estateType, valuation);
+        emit EstateRegistered(identifier, valuation);
     }
 
-    function renewBook(uint _bookId, uint _newDueDate) public {
-        Book storage book = books[_bookId];
-        // Check if book exists and is borrowed
-        require(book.borrower != address(0), "Book does not exist");
-        require(book.isBorrowed, "Book is not currently borrowed");
-        require(book.borrower == msg.sender, "Unauthorized");
-        require(_newDueDate > book.dueDate, "New due date must be after current due date");
+    function purchaseEstate(string memory identifier) public payable {
+        Estate memory estate = estateRegistry[identifier];
+        require(estate.valuation > 0, "Estate not available for purchase");
+        require(msg.value >= estate.valuation, "Insufficient payment for estate");
 
-        book.dueDate = _newDueDate;
+        // Remove the estate from registry
+        delete estateRegistry[identifier];
+
+        emit EstateSold(identifier, estate.valuation);
+    }
+
+    function modifyValuation(string memory identifier, uint256 newValuation) public onlyOwner {
+        Estate storage estate = estateRegistry[identifier];
+        require(estate.valuation > 0, "Estate does not exist");
+
+        estate.valuation = newValuation;
+        emit ValuationUpdated(identifier, newValuation);
+    }
+
+    function estateExists(string memory identifier) public view returns (bool) {
+        return estateRegistry[identifier].valuation > 0;
     }
 }
-To compile the code, click on the "Solidity Compiler" tab in the left-hand sidebar. Make sure the "Compiler" option is set to "0.8.7" (or another compatible version), and then click on the "Compile AccountManagement.sol" button.
+```
+To compile the code, click on the "Solidity Compiler" tab in the left-hand sidebar. Make sure the "Compiler" option is set to "0.8.7" (or another compatible version), and then click on the Compile button.
 
-Once the code is compiled, you can deploy the contract by clicking on the "Deploy & Run Transactions" tab in the left-hand sidebar. Select the "Library Control System" contract from the dropdown menu, and then click on the "Deploy" button.
+Once the code is compiled, you can deploy the contract by clicking on the "Deploy & Run Transactions" tab in the left-hand sidebar. Select the  contract from the dropdown menu, and then click on the "Deploy" button.
 
 ## Authors
 
